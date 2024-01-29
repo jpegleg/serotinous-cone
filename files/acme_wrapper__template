@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-chainspliter() {
+chainsplit() {
   file="$1"
   awk '
     split_after == 1 {n++;split_after=0}
@@ -9,15 +9,11 @@ chainspliter() {
 }
 
 TEMPLATErenew() {
-  /root/.acme.sh/acme.sh --install-cert -d TEMPLATE.com -d www.TEMPLATE.com \
-  --cert-file      /srv/persist/TEMPLATE-cert/cert.pem  \
-  --key-file       /srv/persist/TEMPLATE-key/privkey.pem  \
-  --fullchain-file /srv/persist/TEMPLATE-cert/fullchain.pem && 
-  chainsplitter /srv/persist/TEMPLATE-cert/fullchain.pem
+  cp /etc/letsencrypt/live/TEMPLATE/privkey.pem /srv/persist/TEMPLATE-key/privkey.pem
+  chainsplit /srv/persist/TEMPLATE-cert/fullchain.pem
   cat cert.pem cert1.pem > /srv/persist/TEMPLATE-cert/cert.pem
 }
 
-timer=$(echo $RANDOM | cut -c1-3)
-sleep $timer
-
 TEMPLATErenew
+
+ash /root/loader.sh
