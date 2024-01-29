@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: TEMPLATE
+  labels:
+    name: TEMPLATE
+...
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: morpholw
+  namespace: TEMPLATE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: morphoTEMPLATE
+  template:
+    metadata:
+      labels:
+        app: morphoTEMPLATE
+    spec:
+      containers:
+      - name: morphoTEMPLATE
+        image: "docker.io/library/morph:latest"
+        imagePullPolicy: 'Never'
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - mountPath: /app/static/
+          name: TEMPLATEwebroot
+
+      volumes:
+       - name: TEMPLATEwebroot
+         hostPath:
+           path: /srv/persist/TEMPLATE
+           type: Directory
+...
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: TEMPLATEservice
+  namespace: TEMPLATE
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: morphoTEMPLATE
+...
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: TEMPLATE-ingress
+  namespace: TEMPLATE
+spec:
+  tls:
+  - hosts:
+      - TEMPLATE.com
+    secretName: TEMPLATE-tls
+  rules:
+  - host: "TEMPLATE.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: TEMPLATEservice
+            port:
+              number: 80
+...
