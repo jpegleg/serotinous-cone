@@ -12,7 +12,7 @@ nodes "follow" each other in a granular fashion as per our orchestration.
 Features of the serotinous-cone nodes:
 
 - hardened Traefik
-- complete IaC
+- Ansible installation and configuration
 - microservice templating
 - acme.sh light-weight and scriptable PKI
 - manifest templates
