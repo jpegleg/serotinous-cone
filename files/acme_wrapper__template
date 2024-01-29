@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+chainspliter() {
+  file="$1"
+  awk '
+    split_after == 1 {n++;split_after=0}
+    /-----END CERTIFICATE-----/ {split_after=1}
+    {print > "cert" n ".pem"}' < $file
+}
+
+TEMPLATErenew() {
+  /root/.acme.sh/acme.sh --install-cert -d TEMPLATE.com -d www.TEMPLATE.com \
+  --cert-file      /srv/persist/TEMPLATE-cert/cert.pem  \
+  --key-file       /srv/persist/TEMPLATE-key/privkey.pem  \
+  --fullchain-file /srv/persist/TEMPLATE-cert/fullchain.pem && 
+  chainsplitter /srv/persist/TEMPLATE-cert/fullchain.pem
+  cat cert.pem cert1.pem > /srv/persist/TEMPLATE-cert/cert.pem
+}
+
+timer=$(echo $RANDOM | cut -c1-3)
+sleep $timer
+
+TEMPLATErenew
