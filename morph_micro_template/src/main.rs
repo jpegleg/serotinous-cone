@@ -12,6 +12,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(index)
+            .service(Files::new("/.well-known", "static/.well-known"))
             .service(Files::new("/", "static"))
 
     })
