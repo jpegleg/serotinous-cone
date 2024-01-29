@@ -2,7 +2,7 @@
 
 # serotinous-cone
 
-<b>serotiny</b> -<i> to follow</i>
+<b>serotiny</b> - (botany term) <i>following</i> or <i>later</i>
 
 This repository contains IaC and templating for building K3S single node clusters on Alpine Linux.
 Additional nodes can be added, but the intent of this design is to keep each node separate, yet
