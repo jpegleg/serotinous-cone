@@ -47,7 +47,7 @@
     tags: clean
 
   - name: setup web directories
-    shell: 'mkdir -p /srv/persist/TEMPLATE'
+    shell: 'mkdir -p /srv/persist/TEMPLATE/.well-known/acme-challenge'
     args:
       executable: /bin/ash
     tags: webroot
@@ -94,17 +94,11 @@
       executable: /bin/ash
     tags: pkiloader
 
-  - name: install socat
+  - name: install certbot
     community.general.apk:
-      name: socat
+      name: certbot
       state: present
-    tags: socat
-
-  - name: install acme.sh
-    shell: curl https://get.acme.sh | sh -s email=NOTIFYEXPIREEMAIL
-    args:
-      executable: /bin/ash
-    tags: acme
+    tags: cerbot
 
   - name: install acme abstraction
     copy:
