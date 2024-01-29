@@ -1,0 +1,2 @@
+k3s kubectl delete secret tls TEMPLATE-tls -n TEMPLATE 2>/dev/null
+k3s kubectl create secret tls TEMPLATE-tls -n TEMPLATE  --key=/srv/persist/TEMPLATE-key/privkey.pem --cert=/srv/persist/TEMPLATE-cert/cert.pem
