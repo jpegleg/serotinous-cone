@@ -1,0 +1,113 @@
+---
+
+- name: configure nodes
+  hosts: cones
+  tasks:
+
+  - name: install k3s
+    shell: yes | curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server  --secrets-encryption" sh -
+    args:
+      executable: /bin/ash
+    tags: k3s
+  
+  - name: copy out tls loader
+    copy:
+      src: files/loader.sh
+      dest: /root/loader.sh
+    tags: loaderscript
+
+  - name: copy out morph server image
+    copy:
+      src: files/m.tar
+      dest: /root/m.tar
+    tags: tarball
+
+  - name: ctr image import
+    shell: 'k3s ctr image import /root/m.tar'
+    args:
+      executable: /bin/ash
+    tags: tarball
+
+  - name: get cluster admin
+    shell: 'k3s kubectl config view --raw | tee /root/config_admin'
+    args:
+      executable: /bin/ash
+    tags: k3s
+
+  - name: get cluster admin
+    fetch:
+      src: /root/config_admin
+      dest: admin
+    tags: k3s
+
+  - name: clean up admin
+    file:
+      name: /root/config_admin
+      state: absent
+    tags: clean
+
+  - name: setup web directories
+    shell: 'mkdir -p /srv/persist/TEMPLATE'
+    args:
+      executable: /bin/ash
+    tags: webroot
+
+  - name: setup web pki directories
+    shell: 'mkdir -p /srv/persist/TEMPLATE-cert /srv/persist/TEMPLATE-key'
+    args:
+      executable: /bin/ash
+    tags: webpki
+
+  - name: chmod
+    shell: 'chmod 600 /srv/persist/*key /srv/persist/*cert'
+    args:
+      executable: /bin/ash
+    tags: chmod
+
+  - name: copy out TEMPLATE files
+    copy:
+      src: files/TEMPLATE.tgz
+      dest: /srv/persist/
+    tags: TEMPLATE
+
+  - name: setup web TEMPLATE
+    shell: 'cd /srv/persist/ && cp TEMPLATE.tgz TEMPLATE && cd TEMPLATE && tar xzvf TEMPLATE.tgz && rm TEMPLATE.tgz'
+    args:
+      executable: /bin/ash
+    tags: TEMPLATE
+
+  - name: copy out TEMPLATE tls certs
+    copy:
+      src: files/TEMPLATE_cert.pem
+      dest: /srv/persist/TEMPLATE-cert/cert.pem
+    tags: TEMPLATEpkioverride
+
+  - name: copy out TEMPLATE tls key
+    copy:
+      src: files/TEMPLATE_privkey.pem
+      dest: /srv/persist/TEMPLATE-key/privkey.pem
+    tags: TEMPLATEpkioverride
+
+  - name: run loader script
+    shell: 'ash /root/loader.sh 2>/dev/null'
+    args:
+      executable: /bin/ash
+    tags: pkiloader
+
+  - name: install socat
+    community.general.apk:
+      name: socat
+      state: present
+    tags: socat
+
+  - name: install acme.sh
+    shell: curl https://get.acme.sh | sh -s email=NOTIFYEXPIREEMAIL
+    args:
+      executable: /bin/ash
+    tags: acme
+
+  - name: install acme abstraction
+    copy:
+      src: files/acme_wrapper
+      dest: /root/acme_wrapper
+    tags: acme_wrapper
