@@ -14,7 +14,7 @@ Features of the serotinous-cone nodes:
 - hardened Traefik
 - Ansible installation and configuration
 - microservice templating
-- acme.sh light-weight and scriptable PKI
+- certbot light-weight and scriptable PKI
 - manifest templates
 
 ### UFW (near Alpine default)
@@ -43,7 +43,7 @@ Anywhere                   ALLOW       $YOURADMINHOST
 443/tcp (v6)               ALLOW       Anywhere (v6)          
 ```
 
-To enable ACME cert renewals with HTTP challenges, and unencrypted ingress, additionally add port 80: `ufw allow 80/tcp`.
+To enable ACME cert renewals with HTTP challenges, and unencrypted ingress in general, additionally add port 80: `ufw allow 80/tcp`.
 
 ### Traefik, modern TLS modes
 
@@ -63,5 +63,20 @@ so no need to deal with inter-node optimization or mesh security.
 
 HostPath Volume mounts are often a bad thing, an anti-pattern in cloud native design. But when working at super small scale, it is great for productivity, speed, security, and reliability: just push out files over SSH, easy as that.
 The shell script PKI is lighter weight than running a full fledged cloud native solution, and interestingly is not only more reliable but scales surprisingly well. 
+
+If HTTP ACME challenges are used and there are multiple DNS A records poing to multiple cones, then the web data (/srv/persist) will need to be syncronized between nodes in near real time in order to complete the ACME challenge.
+There are alternate challenge types based on DNS records that can be used, otherwise link the storage. I'll likely add some storage configurations to this repo eventually.
+
+### Certbot and scripted ACME
+
+In this design, regardless of whether we use Traefik's ACME functionality, we also include certbot so that TLS certificates can be issued and renewed in a more flexiable and reliable way.
+While in-cluster ACME has plenty of advantages and on paper is better, in practice we might desire a mechanism to handle renewals outside of the cluster. This can be for orchestration reasons, such
+as having multiple clusters in roundrobin DNS (HTTP challenges would fail), and the fact that DNS challenges in Traefik are prone to issues when more than one certificate is involved.
+
+The acme_wrapper is a script to take the output of certbot, clean it up (remove root from chain pem so the file used is leaf + intermediate), and place them in the loading zone directories. The acme_wrapper then calls the loader.sh,
+that deletes the kubernetes TLS secret and replaces it with the data from the loading zone directories.
+
+The certbot renewal itself is done prior to the acme_wrapper execution, whether that is from crontab, run manually, or orchestrated Ansible, etc etc. I'll likely include some examples of this certbot execution part eventually.
+
 
 ## More coming to the README soon!
