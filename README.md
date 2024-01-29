@@ -43,6 +43,8 @@ Anywhere                   ALLOW       $YOURADMINHOST
 443/tcp (v6)               ALLOW       Anywhere (v6)          
 ```
 
+To enable ACME cert renewals with HTTP challenges, and unencrypted ingress, additionally add port 80: `ufw allow 80/tcp`.
+
 ### Traefik, modern TLS modes
 
 The default Traefik exposes a self signed certificate and weaker ciphers. There are two blocks at the top of the `morph_manifest.yml__template` that harden Traefik up.
