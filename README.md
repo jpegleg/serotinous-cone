@@ -67,6 +67,12 @@ The certbot and scripts PKI is lighter weight than running a full fledged cloud 
 If HTTP ACME challenges are used and there are multiple DNS A records going to multiple cones, then the web data (/srv/persist) will need to be syncronized between nodes in near real time in order to complete the ACME challenge.
 There are alternate challenge types based on DNS records that can be used, otherwise link the storage. I'll likely add some storage configurations to this repo eventually.
 
+#### But we don't <i>have</i> to have HostPath here! We can use other storage mechanisms instead, no problem.
+
+Just because this template defaults to using a HostPath setup on `/srv/persist`, doesn't mean everything is stuck that way. Switching out to alternative storage mechanisms works fine! 
+
+If we do want to keep the HostPath, but want to sync the data to a few other cones in a simple and secure way, one option is sshfs. This works fine for two nodes that need to sync up on web material and PKI files.
+
 ### Certbot and scripted ACME
 
 In this design, regardless of whether we use Traefik's ACME functionality, we also include certbot so that TLS certificates can be issued and renewed in a more flexiable and reliable way.
@@ -77,6 +83,12 @@ The acme_wrapper is a script to take the output of certbot, clean it up (remove 
 that deletes the kubernetes TLS secret and replaces it with the data from the loading zone directories.
 
 The certbot renewal itself is done prior to the acme_wrapper execution, whether that is from crontab, run manually, or orchestrated Ansible, etc etc. I'll likely include some examples of this certbot execution part eventually.
+
+### SDLC glory
+
+Patching can be full of surprises, especially for Kubernetes and Alpine. Rather than patching or changing the node or cluster after it is in use, in this design pattern we just keep buliding new ones. Create new servers (such as with OpenTofu/Terraform and Packer), and refine them, deploy the latest code, check everything out, then point traffic over via DNS/GSLB when it is ready. When everything is well validated, then the old node/s can be removed from DNS/GSLB and then deleted. This keeps upgrades and patching flowing smoothly and without surprises.
+
+Another great aspect of using K3S is that it works on other linux distros, so much of the configuration is portable if we want to either not use Alpine, or use something in addition to Alpine. Developers can run replicas of most of the functionality locally (minus the PKI, using self signed certs instead for dev).
 
 
 ## More coming to the README soon!
