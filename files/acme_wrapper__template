@@ -10,7 +10,7 @@ chainsplit() {
 
 TEMPLATErenew() {
   cp /etc/letsencrypt/live/TEMPLATE/privkey.pem /srv/persist/TEMPLATE-key/privkey.pem
-  chainsplit /srv/persist/TEMPLATE-cert/fullchain.pem
+  chainsplit /etc/letsencrypt/live/TEMPLATE/fullchain.pem
   cat cert.pem cert1.pem > /srv/persist/TEMPLATE-cert/cert.pem
 }
 
