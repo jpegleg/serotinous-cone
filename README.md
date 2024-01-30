@@ -64,7 +64,7 @@ so no need to deal with inter-node optimization or mesh security.
 HostPath Volume mounts are often a bad thing, an anti-pattern in cloud native design. But when working at super small scale, it is great for productivity, speed, security, and reliability: just push out files over SSH, easy as that.
 The certbot and scripts PKI is lighter weight than running a full fledged cloud native solution, and interestingly is not only more reliable but scales surprisingly well. 
 
-If HTTP ACME challenges are used and there are multiple DNS A records poing to multiple cones, then the web data (/srv/persist) will need to be syncronized between nodes in near real time in order to complete the ACME challenge.
+If HTTP ACME challenges are used and there are multiple DNS A records going to multiple cones, then the web data (/srv/persist) will need to be syncronized between nodes in near real time in order to complete the ACME challenge.
 There are alternate challenge types based on DNS records that can be used, otherwise link the storage. I'll likely add some storage configurations to this repo eventually.
 
 ### Certbot and scripted ACME
