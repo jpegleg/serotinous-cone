@@ -28,7 +28,7 @@ ufw allow from $ADMINHOST to any
 ufw reload
 ```
 
-With those three steps in place, the firewall should look like this:
+With those three steps in place, the firewall should look like this (with the placeholder variable being the actual IP of the admin/bastion machine):
 
 ```
 $ ufw status
