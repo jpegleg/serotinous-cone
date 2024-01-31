@@ -27,6 +27,17 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
+  name: redirect
+
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+...
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
   name: default
 spec:
   headers:
@@ -107,6 +118,9 @@ kind: Ingress
 metadata:
   name: TEMPLATE-ingress
   namespace: TEMPLATE
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
@@ -123,4 +137,46 @@ spec:
             name: TEMPLATEservice
             port:
               number: 80
+  - host: "www.TEMPLATE.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: TEMPLATEservice
+            port:
+              number: 80
+...
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: TEMPLATE-ingress-redirect
+  namespace: TEMPLATE
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect@kubernetescrd
+spec:
+  rules:
+  - host: "TEMPLATE.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: TEMPLATEservice
+            port:
+              number: 80
+  - host: "www.TEMPLATE.com"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: TEMPLATEservice
+            port:
+              number: 80
+
 ...
