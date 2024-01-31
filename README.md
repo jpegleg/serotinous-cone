@@ -4,10 +4,13 @@
 
 <b>serotiny</b> - (botany term) <i>following</i> or <i>later</i>
 
+The nodes "follow" each other in a granular fashion as per our orchestration. 
+
 This repository contains IaC and templating for building K3S single node clusters on Alpine Linux.
-Additional nodes can be added, but the intent of this design is to keep each node separate, yet
-to have more than one in different geographic regions with DNS/GSLB failover between them. The
-nodes "follow" each other in a granular fashion as per our orchestration.
+Additional nodes can be added, but the intent of this design is to keep each node separate and self contained.
+Nodes can be standalone, or have a detached replica in another geographic region with DNS/GSLB failover between them,
+or of course larger multi-node clusters can be formed. But the point of this design pattern is not to need larger
+clusters, to reduce network latency, compute costs, and complexity, simplifying security and performance.
 
 Features of the serotinous-cone nodes:
 
@@ -19,7 +22,7 @@ Features of the serotinous-cone nodes:
 
 ### UFW (near Alpine default)
 
-The simple firewall rules are possible because each node is self contained, only SSH and HTTPS need to be exposed.
+The simple firewall rules are possible because each node is self contained, only SSH and HTTPS need to be exposed. It could be as restricted as only port 443 TCP if no further administration action is needed, but typically we'll want 22 TCP for SSH and then allow all ports (or at least 1443, the kubernetes API) can be used for administrative functions. 
 
 ```
 # 22 is already open by default in Alpine: ufw allow in 22/tcp
@@ -44,14 +47,17 @@ Anywhere                   ALLOW       $YOURADMINHOST
 ```
 
 To enable ACME cert renewals with HTTP challenges, and unencrypted ingress in general, additionally add port 80: `ufw allow 80/tcp`.
+The Traefik Ingress example will redirect HTTP (80) to HTTPS (443).
 
 ### Traefik, modern TLS modes
 
-The default Traefik exposes a self signed certificate and weaker ciphers. There are two blocks at the top of the `morph_manifest.yml__template` that harden Traefik up.
+The default Traefik exposes a self signed certificate and weaker ciphers. There are three sections at the top of the `morph_manifest.yml__template` that harden Traefik up.
 Tune and refine as needed. Note that the settings here are based on high standards, not backwards compatibility with legacy systems.
 
-There are some security headers added, feel free to adjust and expand from there.
+The example provides "TEMPLATE.com" as an example, update each occurrence of TEMPLATE to the name being utilized. Note that virtually any number of Pods can use 80/tcp,
+and any number of FQDNs can be used on the same node without conflict. This is one of the huge strengths of kubernetes Ingress.
 
+There are some security headers added, feel free to adjust and expand from there.
 
 ### Just flannel, because size
 
@@ -65,7 +71,7 @@ HostPath Volume mounts are often a bad thing, an anti-pattern in cloud native de
 The certbot and scripts PKI is lighter weight than running a full fledged cloud native solution, and interestingly is not only more reliable but scales surprisingly well. 
 
 If HTTP ACME challenges are used and there are multiple DNS A records going to multiple cones, then the web data (/srv/persist) will need to be syncronized between nodes in near real time in order to complete the ACME challenge.
-There are alternate challenge types based on DNS records that can be used, otherwise link the storage. I'll likely add some storage configurations to this repo eventually.
+There are alternate challenge types based on DNS records that can be used, otherwise link the storage.
 
 #### But we don't <i>have</i> to have HostPath here! We can use other storage mechanisms instead, no problem.
 
