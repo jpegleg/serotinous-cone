@@ -65,6 +65,9 @@ This design focus on compact and light-weight kubernetes. This is for security, 
 I would normally advocate for Calico or Cilium, but for this these little nodes, Flannel is perfect. The template leverages Ingress and keeps all the microservices within host,
 so no need to deal with inter-node optimization or mesh security. 
 
+If you want to switch out flannel for a more fully featured CNI plugin, change the k3s install flags to include `--flannel-backend=none --disable-network-policy` and then afterwards install the 
+appropriate CNI plugin. Most of my other templates for K3s do this, installing Calico for the CNI plugin. See more examples of K3S + Calico here: https://github.com/jpegleg/k3s-dragon-eggs/
+
 ### HostPath and shell script, oh my
 
 HostPath Volume mounts are often a bad thing, an anti-pattern in cloud native design. But when working at super small scale, it is great for productivity, speed, security, and reliability: just push out files over SSH, easy as that.
@@ -95,6 +98,29 @@ The certbot renewal itself is done prior to the acme_wrapper execution, whether 
 Patching can be full of surprises, especially for Kubernetes and Alpine. Rather than patching or changing the node or cluster after it is in use, in this design pattern we just keep buliding new ones. Create new servers (such as with OpenTofu/Terraform and Packer), and refine them, deploy the latest code, check everything out, then point traffic over via DNS/GSLB when it is ready. When everything is well validated, then the old node/s can be removed from DNS/GSLB and then deleted. This keeps upgrades and patching flowing smoothly and without surprises.
 
 Another great aspect of using K3S is that it works on other linux distros, so much of the configuration is portable if we want to either not use Alpine, or use something in addition to Alpine. Developers can run replicas of most of the functionality locally (minus the PKI, using self signed certs instead for dev).
+
+
+### Microservice templates, tiny rust apps that lean on Traefik Ingress
+
+In this design pattern, we can make small microservices that don't need to hold water on their own against the internet in terms of TLS. They sit behind Traefik, leveraging Traefik for TLS.
+Because this design is single node, service-to-service traffic within the cluster scope is entirely within the same kernel. This enables us to shed some of the complexity
+of TLS management, as that is handled granularly at the platform (k3s Traefik) level. While this technically weakens TLS to terminate at Traefik, it reduces costs, simplifies operations, and is compute/cost effective.
+
+There is a template for a simple web server within the `morph_micro_template` directory. The "morph micro" is an Actix web server that serves static web files, and includes support to complete ACME HTTP challenges.
+The micro morph acts in place of a web server, serving up whatever web code is desired. The web code in the template is mounted to the node so that website changes can happen by deploying files to the node, or desired storage system/s. Having 
+the web material separate means that the morph micro service rarely needs to change, if ever. One reason to customize the morph micro is to add additional controls and routes to specific files and paths. To do this,
+copy the index funciton, give it a new name and path, customize the new function as needed, and then add in a new .service(YOURTHING) with YOURTHING being the new function name. Then use (cross) to compile with musl libc, then docker/podman build a new OCI image from `scratch` to run the new statically linked binary. Then save the container to a tar file and insert the tar file via k3s ctr image import, or otherwise deploy to the registry it can be pulled from.
+
+At 12MB total for the morph micro, that single container image can be utilized to serve up many websites and front-ends. This enables web code to avoid needing to re-invent and build new container images, instead the micro morph can handle all of them, with incredible performance anad reliability as well as security, and the web code just needs to be synced to the (storage) mount location for that website. The kubernetes manifests segment each website or scope, enabling completely granular yet centralized management.
+
+Alternatively to adding (URI context) routes with micro morph rust changes, Traefik can also be used to add routes. Traefik can act as a service gateway beyond SNI matching, and also do URI context based routing, and other types of gateway functionality. There is no need to writing a new gateway microservice here, Traefik can handle that. Expand the manifest to include any additional Traefik configurations needed for that cutomization.https://github.com/jpegleg/k3s-dragon-eggs/tree/main
+
+The micro morph is a good example for the serotinous cone design pattern, but any container could be used here.
+
+### Registry vs "air-gapped" tarballs
+
+The template has tarballs made from containers used to import directly. This is a common pattern for air-gapped installations, and can be useful if the container image isn't supposed to change once the cluster is running. In scenarios where the container image needs to change frequently during the life of the cluster, it is possibly better to follow the standard designs of container registries. Adding a registry can be a significant attack surface and increase costs, but empowers developers to make changes to container images that can be configured to be pulled automatically. The serotinous-cone doesn't <i>need</i> a private registry and can be built simply, but <i>can</i> be configured to use a registry instead or in addition to the tarball import. Even if the containers need to change frequently, there may be cases where the tarball approach is still more secure and/or more cost effective.
+
 
 
 ## More coming to the README soon!
