@@ -113,7 +113,7 @@ copy the index funciton, give it a new name and path, customize the new function
 
 At 12MB total for the morph micro, that single container image can be utilized to serve up many websites and front-ends. This enables web code to avoid needing to re-invent and build new container images, instead the micro morph can handle all of them, with incredible performance anad reliability as well as security, and the web code just needs to be synced to the (storage) mount location for that website. The kubernetes manifests segment each website or scope, enabling completely granular yet centralized management.
 
-Alternatively to adding (URI context) routes with micro morph rust changes, Traefik can also be used to add routes. Traefik can act as a service gateway beyond SNI matching, and also do URI context based routing, and other types of gateway functionality. There is no need to writing a new gateway microservice here, Traefik can handle that. Expand the manifest to include any additional Traefik configurations needed for that cutomization.https://github.com/jpegleg/k3s-dragon-eggs/tree/main
+Alternatively to adding (URI context) routes with micro morph rust changes, Traefik can also be used to add routes. Traefik can act as a service gateway beyond SNI matching, and also do URI context based routing, and other types of gateway functionality. There is no need to writing a new gateway microservice here, Traefik can handle that. Expand the manifest to include any additional Traefik configurations needed for that cutomization.
 
 The micro morph is a good example for the serotinous cone design pattern, but any container could be used here.
 
