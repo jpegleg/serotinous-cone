@@ -5,7 +5,7 @@
   tasks:
 
   - name: install k3s
-    shell: yes | curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server  --secrets-encryption" sh -
+    shell: yes | curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server  --secrets-encryption --disable=metrics-server" sh -
     args:
       executable: /bin/ash
     tags: k3s
@@ -87,12 +87,6 @@
       src: files/TEMPLATE_privkey.pem
       dest: /srv/persist/TEMPLATE-key/privkey.pem
     tags: TEMPLATEpkioverride
-
-  - name: run loader script
-    shell: 'ash /root/loader.sh 2>/dev/null'
-    args:
-      executable: /bin/ash
-    tags: pkiloader
 
   - name: install certbot
     community.general.apk:
