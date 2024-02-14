@@ -122,5 +122,25 @@ The micro morph is a good example for the serotinous cone design pattern, but an
 The template has tarballs made from containers used to import directly. This is a common pattern for air-gapped installations, and can be useful if the container image isn't supposed to change once the cluster is running. In scenarios where the container image needs to change frequently during the life of the cluster, it is possibly better to follow the standard designs of container registries. Adding a registry can be a significant attack surface and increase costs, but empowers developers to make changes to container images that can be configured to be pulled automatically. The serotinous-cone doesn't <i>need</i> a private registry and can be built simply, but <i>can</i> be configured to use a registry instead or in addition to the tarball import. Even if the containers need to change frequently, there may be cases where the tarball approach is still more secure and/or more cost effective.
 
 
+### Traefik "stuck" tips
+
+Occasionally while setting up a node, HSTS won't be applied, or an error that occured is stuck in place
+even though it was corrected in Kubernetes. These issues are momentary, and likely bugs of some kind
+in Traefik, but TBD on the cause of them. When they happen, they are "stuck" with a missing/mismatch
+configuration. Here are some suggestions on how to unstick them if this scenario comes up with Traefik.
+
+<b>Toggle annotations (failure to use annotation in Traefik)</b>
+
+Occasionally the annotations on the Ingress object are not used! To correct, try toggling the annotations (remove, apply, add, apply),
+to try and get Traefik to pick it up again. This is likely a bug in Traefik of some kind, TBD.
+
+<b>HTTP 502 Bad Gateway</b>
+
+This typically happens when there is a disconnect between the Ingress -> Service -> Deployment -> Container. Make sure the ports and labels are aligned.
+
+Also the HTTP 502 can happen where Traefik becomes stuck on HTTP 502 responses (?). When everything is aligned, and the HTTP 502s
+keep coming, try re-installing Traefik or try deleting and re-applying configurations (?). There is probably a bug in Traefik
+about this, I'll see if I can figure anything out about the cause if I come on it again. It seems to only happen when there is an initial misconfig as the root cause, and then there is some "sticking" of the bad configuration that can happen when trying to correct through Traefik Ingress.
+
 
 ## More coming to the README soon!
