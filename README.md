@@ -143,4 +143,13 @@ keep coming, try re-installing Traefik or try deleting and re-applying configura
 about this, I'll see if I can figure anything out about the cause if I come on it again. It seems to only happen when there is an initial misconfig as the root cause, and then there is some "sticking" of the bad configuration that can happen when trying to correct through Traefik Ingress.
 
 
-## More coming to the README soon!
+## Certbot as renewal mechanism
+
+We can use `certbot` on the CLI in alpine, then use the resulting certificate and key in traefik for those domains. We can have many unique domains, each distinct without needing to share certificates, or share certificates if desired.
+
+```
+certbot certonly --key-type ecdsa --webroot -w /srv/persist/$1/ -d $2 -d $3
+```
+
+Using this method above has several interactive prompts. To avoid interactive prompts, we can use various techniques, including the `--agree-tos` and `-m EMAIL` to supply the email address (instead of EMAIL) and automatically accept the terms.
+I find that at times the cones are rebuilt faster than the certificate expires, but renewal is very slick on a running cone. Again, if Traefik lost some object properties, toggle the annotation to snap it back in place.
