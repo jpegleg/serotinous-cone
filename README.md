@@ -151,5 +151,5 @@ We can use `certbot` on the CLI in alpine, then use the resulting certificate an
 certbot certonly --key-type ecdsa --webroot -w /srv/persist/$1/ -d $2 -d $3
 ```
 
-Using this method above has several interactive prompts. To avoid interactive prompts, we can use various techniques, including the `--agree-tos` and `-m EMAIL` to supply the email address (instead of EMAIL) and automatically accept the terms.
+Using this method above has several interactive prompts. To avoid interactive prompts, we can use various techniques, including the `--agree-tos` and `-m EMAIL` to supply the email address (instead of EMAIL) and automatically accept the terms, and `-n` for non-interactive.
 I find that at times the cones are rebuilt faster than the certificate expires, but renewal is very slick on a running cone. Again, if Traefik lost some object properties, toggle the annotation to snap it back in place.
