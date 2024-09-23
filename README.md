@@ -158,4 +158,4 @@ I find that at times the cones are rebuilt faster than the certificate expires, 
 
 The project https://github.com/jpegleg/firfather is a CICD system build specifically for serotinous cones. While cones can be built and maintained manually, the 99% automated approach can be done by running a firfather server. Firfather is built to use vultr cloud, but can leverage any cloud provider, or multiple cloud providers, if desired. 
 
-That lasat 1% is intentionally left for either a GSLB service and orchestration for it, or human action to change DNS records when we want to point domains to new cones.
+That last 1% is intentionally left for either a GSLB service and orchestration for it, or human action to change DNS records when we want to point domains to new cones.
