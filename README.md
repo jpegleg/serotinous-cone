@@ -153,3 +153,9 @@ certbot certonly --key-type ecdsa --webroot -w /srv/persist/$1/ -d $2 -d $3
 
 Using this method above has several interactive prompts. To avoid interactive prompts, we can use various techniques, including the `--agree-tos` and `-m EMAIL` to supply the email address (instead of EMAIL) and automatically accept the terms, and `-n` for non-interactive.
 I find that at times the cones are rebuilt faster than the certificate expires, but renewal is very slick on a running cone. Again, if Traefik lost some object properties, toggle the annotation to snap it back in place.
+
+## Automation of serotinous-code server building: firfather
+
+The project https://github.com/jpegleg/firfather is a CICD system build specifically for serotinous cones. While cones can be built and maintained manually, the 99% automated approach can be done by running a firfather server. Firfather is built to use vultr cloud, but can leverage any cloud provider, or multiple cloud providers, if desired. 
+
+That lasat 1% is intentionally left for either a GSLB service and orchestration for it, or human action to change DNS records when we want to point domains to new cones.
