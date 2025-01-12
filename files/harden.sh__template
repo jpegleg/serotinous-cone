@@ -1,18 +1,27 @@
 apk update
 apk upgrade
 apk add audit
+
+printouts() {
+  echo "enable community repository and re-run" && exit 1
+}
+
+grep community /etc/apk/repositories || printouts
+
 apk add logrotate bash-completion openssh-server b3sum
 
 chmod 700 /root
-chmod 600 /root/.ssh/id_*
+chmod 600 /root/.ssh/id_* 2>/dev/null
 chmod 600 /etc/ssh/sshd_config
 
 cp /root/check-current.txt /root/check-previous.txt 2>/dev/null
+
 b3sum /etc/fstab > /root/check-current.txt
 b3sum /etc/ssh/sshd_config >> /root/check-current.txt
 b3sum /etc/logrotate.conf >> /root/check-current.txt
 b3sum /etc/sysctl.conf >> /root/check-current.txt
 b3sum /boot/vmlinuz-lts >> /root/check-current.txt
+
 echo "$(hostname) - $(date +%Y-%m-%dT%H:%M:%S)Z" >> /root/check-current.txt
 
 logrotate /etc/logrotate.conf
