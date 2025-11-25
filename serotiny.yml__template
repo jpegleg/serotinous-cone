@@ -70,6 +70,12 @@
     - install
     - traefik
 
+  - name: clean up traefik helm
+    shell: k3s kubectl get pods -n kube-system | grep helm-install | awk '{print $1}' | while read line; do k3s kubectl delete pod $line -n kube-system; done
+    args:
+      executable: /bin/ash
+    tags: helm
+
   - name: copy out tls loader
     copy:
       src: files/loader.sh
