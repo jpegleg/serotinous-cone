@@ -9,7 +9,67 @@
     args:
       executable: /bin/ash
     tags: k3s
-  
+
+  - name: waste time while k3s bootstraps
+    shell: sleep 30
+    args:
+      executable: /bin/ash
+    tags: 
+    - sleep
+    - firstrun
+
+  - name: install helm
+    shell: yes | curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
+    args:
+      executable: /bin/ash
+    tags: helm
+
+  - name: enforce directory
+    ansible.builtin.file:
+      path: /root/.kube/
+      state: directory
+      mode: '755'
+    tags:
+    - kubedir
+    - kubeconfig
+
+  - name: update standard config
+    shell: k3s kubctl config view --raw > /root/.kube/config
+    args:
+      executable: /bin/ash
+    tags: kubeconfig
+
+  - name: update standard config
+    shell: chmod 600 ~/.kube/config
+    args:
+      executable: /bin/ash
+    tags: kubeconfig
+
+  - name: add helm repo
+    shell: helm repo add traefik https://traefik.github.io/charts
+    args:
+      executable: /bin/ash
+    tags: 
+    - repo
+    - traefik
+
+  - name: install traefik crds
+    shell: helm install traefik-crds traefik/traefik-crds
+    args:
+      executable: /bin/ash
+    tags: 
+    - install
+    - traefik
+    - crds
+
+  - name: install traefik
+    shell: helm install traefik traefik/traefik --skip-crds
+    args:
+      executable: /bin/ash
+    tags: 
+    - install
+    - traefik
+
   - name: copy out tls loader
     copy:
       src: files/loader.sh
