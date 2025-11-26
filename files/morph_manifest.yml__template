@@ -17,6 +17,8 @@ spec:
     - TLS_CHACHA20_POLY1305_SHA256
     - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
   curvePreferences:
+    - X25519MLKEM768
+    - X25519
     - CurveP521
     - CurveP384
   sniStrict: true
