@@ -137,7 +137,7 @@
     tags: TEMPLATE
 
   - name: setup web TEMPLATE
-    shell: 'cd /srv/persist/ && cp TEMPLATE.tgz TEMPLATE && cd TEMPLATE && tar xzvf TEMPLATE.tgz && rm TEMPLATE.tgz'
+    shell: 'cd /srv/persist/ && cp TEMPLATE.tgz TEMPLATE && cd TEMPLATE && tar xzvf TEMPLATE.tgz -C / && rm TEMPLATE.tgz'
     args:
       executable: /bin/ash
     tags: TEMPLATE
