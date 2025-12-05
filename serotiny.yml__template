@@ -71,6 +71,12 @@
     - traefik
 
   - name: clean up traefik helm
+    shell: k3s kubectl -n kube-system delete helmcharts.helm.cattle.io traefik
+    args:
+      executable: /bin/ash
+    tags: helm
+
+  - name: clean up traefik helm pods
     shell: k3s kubectl get pods -n kube-system | grep helm-install | awk '{print $1}' | while read line; do k3s kubectl delete pod $line -n kube-system; done
     args:
       executable: /bin/ash
