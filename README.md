@@ -1,5 +1,4 @@
-![cdlogo](https://carefuldata.com/images/cdlogo.png)
-
+<b>Currently this build is failing and generally this project is being abandoned - 03/06/2026</b>
 # serotinous-cone
 
 <b>serotiny</b> - (botany term) <i>following</i> or <i>later</i>
